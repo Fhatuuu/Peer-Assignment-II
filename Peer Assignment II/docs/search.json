@@ -1,0 +1,121 @@
+[
+  {
+    "objectID": "Question Four.html",
+    "href": "Question Four.html",
+    "title": "Question Four",
+    "section": "",
+    "text": "set.seed(1234)\n\nforeach(x = irnorm(5, count = 3, mean = 0, sd = 1)) %do% {\n  max(x)\n}\n\n[[1]]\n[1] 1.084441\n\n[[2]]\n[1] 0.5060559\n\n[[3]]\n[1] 0.9594941"
+  },
+  {
+    "objectID": "Question Four.html#quarto",
+    "href": "Question Four.html#quarto",
+    "title": "Question Four",
+    "section": "",
+    "text": "Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see https://quarto.org."
+  },
+  {
+    "objectID": "Question Four.html#running-code",
+    "href": "Question Four.html#running-code",
+    "title": "Question Four",
+    "section": "Running Code",
+    "text": "Running Code\nWhen you click the Render button a document will be generated that includes both content and the output of embedded code. You can embed code like this:\n\n1 + 1\n\n[1] 2\n\n\nYou can add options to executable code like this\n\n\n[1] 4\n\n\nThe echo: false option disables the printing of code (only output is displayed)."
+  },
+  {
+    "objectID": "Question Two.html",
+    "href": "Question Two.html",
+    "title": "Question Two",
+    "section": "",
+    "text": "data &lt;- galaxies\n\n\n\nThis is to obtain the reference runtime\n\nset.seed(123)\n\nB &lt;- 10000\nn &lt;- length(data)\n\nsystem.time({\n  med_serial &lt;- numeric(B)\n  \n  for (i in B) {\n    sample_i &lt;- sample(data, n, replace = TRUE)\n    med_serial[i] &lt;- median(sample_i)\n    \n  }\n})\n\n   user  system elapsed \n   0.00    0.00    0.02 \n\n\n\n\n\n\ncluster &lt;- makeCluster(parallel :: detectCores() - 1)\n\n# bootstrapping\nset.seed(123)\n\nsystem.time({\n  long_par &lt;- foreach(i = 1:B, .combine = c, .packages = \"MASS\") %dopar%{\n    sample_i &lt;- sample(galaxies, length(galaxies), replace = TRUE) # bootstrapping\n    median(sample_i)\n  }\n})\n\nWarning: executing %dopar% sequentially: no parallel backend registered\n\n\n   user  system elapsed \n   1.63    0.02    1.69 \n\n# stop cluster \nstopCluster(cluster)\n\n\n\n\nSending 10 jobs per worker\n\nchunks &lt;- 10\nchunk_size &lt;- B/chunks\n\ncluster &lt;- makeCluster(parallel::detectCores() -1)\n\nregisterDoParallel(cluster)\n  \nsystem.time({\n  par_chunk &lt;- foreach(i = 1: chunks, .combine = c,.packages = \"MASS\") %dopar% {\n    \n    replicate(chunk_size, {\n      sample_i &lt;- sample(galaxies, length(galaxies), replace = TRUE) # bootstrapping\n      median(sample_i)\n    })\n    \n  }\n})\n\n   user  system elapsed \n   0.00    0.00    0.21 \n\nstopCluster(cluster)\n\n\n\n\nThe baseline bootstrap method performs really well, with a runtime that is \\(\\approx 0\\). Obviously with a larger sample size, it would take longer but I still think it is the best option of the three.\n\n\nThe method with 10000 tasks (workers) takes quite some time in terms of efficiency. It is the least efficient method and mostly because of the overhead that comes with parallelism. There is also a matter of waiting for other tasks to finish as well which leads to some idle workers and overall long runtime.\nThe method with chunks compared to the one without works more efficiently, but again it still has significantly more runtime than miss sequential."
+  },
+  {
+    "objectID": "Question Two.html#quarto",
+    "href": "Question Two.html#quarto",
+    "title": "Question Two",
+    "section": "",
+    "text": "Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see https://quarto.org."
+  },
+  {
+    "objectID": "Question Two.html#running-code",
+    "href": "Question Two.html#running-code",
+    "title": "Question Two",
+    "section": "Running Code",
+    "text": "Running Code\nWhen you click the Render button a document will be generated that includes both content and the output of embedded code. You can embed code like this:\n\n1 + 1\n\n[1] 2\n\n\nYou can add options to executable code like this\n\n\n[1] 4\n\n\nThe echo: false option disables the printing of code (only output is displayed)."
+  },
+  {
+    "objectID": "Question One.html",
+    "href": "Question One.html",
+    "title": "Question One",
+    "section": "",
+    "text": "Using a foreach loop to repeat 100 times.\n\n# generating a rn sample from an exp dist. w/ mean = 1\nn &lt;- 100\n\ndf &lt;- foreach(i = 1: n, .combine = rbind) %dopar% {\n  exp_sample &lt;- rexp(n, rate = 1)\n  samp_mean &lt;- mean(exp_sample)\n  samp_var &lt;- var(exp_sample)\n  c(samp_mean, samp_var)\n\n}\n\nas.tibble(df)\n\n# A tibble: 100 × 2\n      V1    V2\n   &lt;dbl&gt; &lt;dbl&gt;\n 1 1.09  1.29 \n 2 0.918 0.718\n 3 0.883 0.797\n 4 0.923 0.613\n 5 0.709 0.664\n 6 1.16  1.01 \n 7 1.14  1.04 \n 8 1.13  1.33 \n 9 0.831 0.646\n10 1.25  1.05 \n# ℹ 90 more rows"
+  },
+  {
+    "objectID": "Question One.html#question-one",
+    "href": "Question One.html#question-one",
+    "title": "Question One",
+    "section": "",
+    "text": "Using a foreach loop to repeat 100 times.\n\n# generating a rn sample from an exp dist. w/ mean = 1\nn &lt;- 100\n\ndf &lt;- foreach(i = 1: n, .combine = rbind) %dopar% {\n  exp_sample &lt;- rexp(n, rate = 1)\n  samp_mean &lt;- mean(exp_sample)\n  samp_var &lt;- var(exp_sample)\n  c(samp_mean, samp_var)\n\n}\n\nas.tibble(df)\n\n# A tibble: 100 × 2\n      V1    V2\n   &lt;dbl&gt; &lt;dbl&gt;\n 1 1.09  1.29 \n 2 0.918 0.718\n 3 0.883 0.797\n 4 0.923 0.613\n 5 0.709 0.664\n 6 1.16  1.01 \n 7 1.14  1.04 \n 8 1.13  1.33 \n 9 0.831 0.646\n10 1.25  1.05 \n# ℹ 90 more rows"
+  },
+  {
+    "objectID": "Question Three.html",
+    "href": "Question Three.html",
+    "title": "Question Three",
+    "section": "",
+    "text": "Estimating the coverage of a percentile bootstrap CI\n\nB &lt;- 1000\nn &lt;- 50\nMC &lt;- 2000\ntrue_mean &lt;- 1\n\ncores &lt;- parallel::detectCores() - 1\ncl &lt;- makeCluster(cores)\nregisterDoParallel(cl)\n\nboot_block &lt;- function(M){\n\n  out &lt;- numeric(M)\n\n  for(i in 1:M){\n\n    x &lt;- rexp(n, rate = 1)\n\n    boot_samples &lt;- matrix(sample(x, n * B, replace = TRUE), nrow = n)\n    boot_means &lt;- colMeans(boot_samples)\n\n    CI &lt;- quantile(boot_means, c(0.025, 0.975))\n\n    out[i] &lt;- (CI[1] &lt;= true_mean & CI[2] &gt;= true_mean)\n  }\n\n  out\n}\n\n# split work across cores\njobs &lt;- rep(MC/cores, cores)\n\nresults &lt;- foreach(j = jobs, .combine = c) %dopar% {\n  boot_block(j)\n}\n\nstopCluster(cl)\n\ncoverage &lt;- mean(results)\nround(coverage,2 )\n\n[1] 0.93"
+  },
+  {
+    "objectID": "Question Three.html#quarto",
+    "href": "Question Three.html#quarto",
+    "title": "Question Three",
+    "section": "",
+    "text": "Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see https://quarto.org."
+  },
+  {
+    "objectID": "Question Three.html#running-code",
+    "href": "Question Three.html#running-code",
+    "title": "Question Three",
+    "section": "Running Code",
+    "text": "Running Code\nWhen you click the Render button a document will be generated that includes both content and the output of embedded code. You can embed code like this:\n\n1 + 1\n\n[1] 2\n\n\nYou can add options to executable code like this\n\n\n[1] 4\n\n\nThe echo: false option disables the printing of code (only output is displayed)."
+  },
+  {
+    "objectID": "Question Two.html#question-two",
+    "href": "Question Two.html#question-two",
+    "title": "Question Two",
+    "section": "",
+    "text": "data &lt;- galaxies\n\n\n\nThis is to obtain the reference runtime\n\nset.seed(123)\n\nB &lt;- 10000\nn &lt;- length(data)\n\nsystem.time({\n  med_serial &lt;- numeric(B)\n  \n  for (i in B) {\n    sample_i &lt;- sample(data, n, replace = TRUE)\n    med_serial[i] &lt;- median(sample_i)\n    \n  }\n})\n\n   user  system elapsed \n   0.00    0.00    0.02 \n\n\n\n\n\n\ncluster &lt;- makeCluster(parallel :: detectCores() - 1)\n\n# bootstrapping\nset.seed(123)\n\nsystem.time({\n  long_par &lt;- foreach(i = 1:B, .combine = c, .packages = \"MASS\") %dopar%{\n    sample_i &lt;- sample(galaxies, length(galaxies), replace = TRUE) # bootstrapping\n    median(sample_i)\n  }\n})\n\nWarning: executing %dopar% sequentially: no parallel backend registered\n\n\n   user  system elapsed \n   1.63    0.02    1.69 \n\n# stop cluster \nstopCluster(cluster)\n\n\n\n\nSending 10 jobs per worker\n\nchunks &lt;- 10\nchunk_size &lt;- B/chunks\n\ncluster &lt;- makeCluster(parallel::detectCores() -1)\n\nregisterDoParallel(cluster)\n  \nsystem.time({\n  par_chunk &lt;- foreach(i = 1: chunks, .combine = c,.packages = \"MASS\") %dopar% {\n    \n    replicate(chunk_size, {\n      sample_i &lt;- sample(galaxies, length(galaxies), replace = TRUE) # bootstrapping\n      median(sample_i)\n    })\n    \n  }\n})\n\n   user  system elapsed \n   0.00    0.00    0.21 \n\nstopCluster(cluster)\n\n\n\n\nThe baseline bootstrap method performs really well, with a runtime that is \\(\\approx 0\\). Obviously with a larger sample size, it would take longer but I still think it is the best option of the three.\n\n\nThe method with 10000 tasks (workers) takes quite some time in terms of efficiency. It is the least efficient method and mostly because of the overhead that comes with parallelism. There is also a matter of waiting for other tasks to finish as well which leads to some idle workers and overall long runtime.\nThe method with chunks compared to the one without works more efficiently, but again it still has significantly more runtime than miss sequential."
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Home",
+    "section": "",
+    "text": "Here’s to hoping it is better than the previous one."
+  },
+  {
+    "objectID": "index.html#parallel-computing-practical.",
+    "href": "index.html#parallel-computing-practical.",
+    "title": "Home",
+    "section": "",
+    "text": "Here’s to hoping it is better than the previous one."
+  },
+  {
+    "objectID": "Question Three.html#question-three",
+    "href": "Question Three.html#question-three",
+    "title": "Question Three",
+    "section": "",
+    "text": "Estimating the coverage of a percentile bootstrap CI\n\nB &lt;- 1000\nn &lt;- 50\nMC &lt;- 2000\ntrue_mean &lt;- 1\n\ncores &lt;- parallel::detectCores() - 1\ncl &lt;- makeCluster(cores)\nregisterDoParallel(cl)\n\nboot_block &lt;- function(M){\n\n  out &lt;- numeric(M)\n\n  for(i in 1:M){\n\n    x &lt;- rexp(n, rate = 1)\n\n    boot_samples &lt;- matrix(sample(x, n * B, replace = TRUE), nrow = n)\n    boot_means &lt;- colMeans(boot_samples)\n\n    CI &lt;- quantile(boot_means, c(0.025, 0.975))\n\n    out[i] &lt;- (CI[1] &lt;= true_mean & CI[2] &gt;= true_mean)\n  }\n\n  out\n}\n\n# split work across cores\njobs &lt;- rep(MC/cores, cores)\n\nresults &lt;- foreach(j = jobs, .combine = c) %dopar% {\n  boot_block(j)\n}\n\nstopCluster(cl)\n\ncoverage &lt;- mean(results)\nround(coverage,2 )\n\n[1] 0.92"
+  },
+  {
+    "objectID": "Question Four.html#question-five",
+    "href": "Question Four.html#question-five",
+    "title": "Question Four",
+    "section": "Question Five",
+    "text": "Question Five\n\nnvec &lt;- 3\nlen &lt;- 5\n# 1. serial\nsystem.time({\n  res_replicate &lt;- replicate(nvec, {\n    x &lt;- rnorm(len)\n    max(x)\n  })\n})\n\n   user  system elapsed \n      0       0       0 \n\nres_replicate\n\n[1] 2.4158352 0.4595894 0.5747557\n\n\n\n# 2. parLapply\n\ncluster &lt;- makeCluster(detectCores() -1)\n\nsystem.time({\n  res_parL &lt;- parLapply(cluster, 1:nvec, function(i){\n    \n    x &lt;- rnorm(5)\n    max(x)\n  })\n})\n\n   user  system elapsed \n      0       0       0 \n\nstopCluster(cluster)\nres_parL\n\n[[1]]\n[1] 1.405838\n\n[[2]]\n[1] 2.624806\n\n[[3]]\n[1] 0.221852\n\n\n\ncluster &lt;- makeCluster(detectCores() -1)\nregisterDoParallel(cluster)\n\nsystem.time({\n  res_foreach &lt;- foreach(i = 1:nvec, .combine = c) %dopar% {\n    x &lt;- rnorm(len)\n    max(x)\n  }\n})\n\n   user  system elapsed \n   0.01    0.00    0.03 \n\nstopCluster(cluster)\nres_foreach\n\n[1] -0.01467026  1.00920724  1.74239642\n\n\n\nSummary\nNo major difference between the methods, foreach performs the worst, while parLappy performs the best. Still though not as fast as sequential Methods, just because of the overhead."
+  },
+  {
+    "objectID": "Question Four.html#question-four",
+    "href": "Question Four.html#question-four",
+    "title": "Question Four",
+    "section": "",
+    "text": "set.seed(1234)\n\nforeach(x = irnorm(5, count = 3, mean = 0, sd = 1)) %do% {\n  max(x)\n}\n\n[[1]]\n[1] 1.084441\n\n[[2]]\n[1] 0.5060559\n\n[[3]]\n[1] 0.9594941"
+  }
+]

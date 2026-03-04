@@ -1,0 +1,63 @@
+---
+title: "Question Three"
+format: 
+  html: 
+    theme: cyborg
+---
+
+Estimating the coverage of a percentile bootstrap CI 
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+library(foreach)
+library(doParallel)
+library(parallel)
+```
+
+```{r}
+#| message: false
+#| warning: false
+
+B <- 1000
+n <- 50
+MC <- 2000
+true_mean <- 1
+
+cores <- parallel::detectCores() - 1
+cl <- makeCluster(cores)
+registerDoParallel(cl)
+
+boot_block <- function(M){
+
+  out <- numeric(M)
+
+  for(i in 1:M){
+
+    x <- rexp(n, rate = 1)
+
+    boot_samples <- matrix(sample(x, n * B, replace = TRUE), nrow = n)
+    boot_means <- colMeans(boot_samples)
+
+    CI <- quantile(boot_means, c(0.025, 0.975))
+
+    out[i] <- (CI[1] <= true_mean & CI[2] >= true_mean)
+  }
+
+  out
+}
+
+# split work across cores
+jobs <- rep(MC/cores, cores)
+
+results <- foreach(j = jobs, .combine = c) %dopar% {
+  boot_block(j)
+}
+
+stopCluster(cl)
+
+coverage <- mean(results)
+round(coverage,2 )
+```
+

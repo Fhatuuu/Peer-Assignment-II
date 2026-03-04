@@ -1,0 +1,85 @@
+---
+title: "Question Four"
+format: 
+  html: 
+    theme: cyborg
+---
+## Question Four
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+library(foreach)
+library(doParallel)
+library(iterators)
+library(parallel)
+```
+
+```{r}
+set.seed(1234)
+
+foreach(x = irnorm(5, count = 3, mean = 0, sd = 1)) %do% {
+  max(x)
+}
+
+```
+
+## Question Five
+
+```{r}
+#| message: false
+#| warning: false
+nvec <- 3
+len <- 5
+# 1. serial
+system.time({
+  res_replicate <- replicate(nvec, {
+    x <- rnorm(len)
+    max(x)
+  })
+})
+res_replicate
+
+```
+
+```{r}
+#| message: false
+#| warning: false
+# 2. parLapply
+
+cluster <- makeCluster(detectCores() -1)
+
+system.time({
+  res_parL <- parLapply(cluster, 1:nvec, function(i){
+    
+    x <- rnorm(5)
+    max(x)
+  })
+})
+
+stopCluster(cluster)
+res_parL
+```
+
+```{r}
+#| message: false
+#| warning: false
+cluster <- makeCluster(detectCores() -1)
+registerDoParallel(cluster)
+
+system.time({
+  res_foreach <- foreach(i = 1:nvec, .combine = c) %dopar% {
+    x <- rnorm(len)
+    max(x)
+  }
+})
+
+stopCluster(cluster)
+res_foreach
+
+```
+### Summary
+
+No major difference between the methods, *foreach* performs the worst, while *parLappy* performs the best. Still though not as fast as sequential Methods, just because of the overhead.
+

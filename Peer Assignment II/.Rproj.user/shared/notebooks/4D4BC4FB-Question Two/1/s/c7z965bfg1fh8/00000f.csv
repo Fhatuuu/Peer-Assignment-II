@@ -1,0 +1,4 @@
+"0","library(doParallel)
+"
+"2","Error in library(doParallel) : there is no package called ‘doParallel’
+"

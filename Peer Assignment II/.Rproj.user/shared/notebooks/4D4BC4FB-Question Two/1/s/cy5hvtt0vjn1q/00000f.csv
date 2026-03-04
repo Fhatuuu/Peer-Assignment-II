@@ -1,0 +1,20 @@
+"0","system.time({
+  med_serial <- numeric(B)
+  
+  for (i in B) {
+    sample_i <- sample(data, n, replace = TRUE)
+    med_serial[i] <- median(sample_i)
+    
+  }
+})
+"
+"1","   user "
+"1"," system "
+"1","elapsed "
+"1","
+"
+"1","   0.00 "
+"1","   0.00 "
+"1","   0.02 "
+"1","
+"

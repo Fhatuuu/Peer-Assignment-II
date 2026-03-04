@@ -1,0 +1,38 @@
+---
+title: "Question One"
+author: "Fhatuwani Mokwenda"
+format: 
+  html: 
+    theme: cyborg
+---
+
+## Question One
+
+Using a *foreach* loop to repeat 100 times.
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+library(foreach)
+library(tidyr)
+library(dplyr)
+library(tidyverse)
+```
+
+```{r}
+#| warning: false
+# generating a rn sample from an exp dist. w/ mean = 1
+n <- 100
+
+df <- foreach(i = 1: n, .combine = rbind) %dopar% {
+  exp_sample <- rexp(n, rate = 1)
+  samp_mean <- mean(exp_sample)
+  samp_var <- var(exp_sample)
+  c(samp_mean, samp_var)
+
+}
+
+as.tibble(df)
+ 
+```
